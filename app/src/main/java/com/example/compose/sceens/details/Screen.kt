@@ -23,6 +23,7 @@ import com.example.compose.sceens.base.LightColors
 
 private val brownGrayColor = Color(0xFF959595)
 private val whiteTwo = Color(0xFFf9f9f9)
+private val veryLightPink = Color(0xFFeaeaea)
 
 @ExperimentalFoundationApi
 @Preview
@@ -36,16 +37,18 @@ fun ComposePreview() {
 }
 
 @Composable
-fun Subtitle5(text: String) =
+fun Subtitle5(text: String, modifier: Modifier = Modifier) =
     Text(
         text = text,
-        style = TextStyle(color = Color.Black, fontSize = 14.sp, fontWeight = FontWeight.Normal)
+        style = TextStyle(color = Color.Black, fontSize = 14.sp, fontWeight = FontWeight.Normal),
+        modifier = modifier
     )
 
 @Composable
-fun Caption(text: String) = Text(
+fun Caption(text: String, modifier: Modifier = Modifier) = Text(
     text = text,
-    style = TextStyle(color = brownGrayColor, fontSize = 12.sp, fontWeight = FontWeight.Normal)
+    style = TextStyle(color = brownGrayColor, fontSize = 12.sp, fontWeight = FontWeight.Normal),
+    modifier = modifier
 )
 
 @ExperimentalFoundationApi
@@ -83,9 +86,49 @@ fun ProductScreen(productViewModel: ProductViewModel = viewModel(ProductViewMode
             item { CountView(productViewModel = productViewModel) }
             item { HeaderView(height = 60.dp, title = "Способы получения") }
             item { DeliveryPickUpView(productViewModel = productViewModel) }
+            item { HeaderView(height = 60.dp, title = "Характеристики") }
+            item { CharacteristicView(productViewModel = productViewModel) }
         },
         modifier = Modifier.fillMaxSize()
     )
+}
+
+@Composable
+fun CharacteristicView(productViewModel: ProductViewModel) {
+
+    val characteristic by productViewModel.characteristic.observeAsState(emptyList())
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        characteristic.map { characteristic -> CharacteristicCell(model = characteristic) }
+    }
+}
+
+@Composable
+fun CharacteristicCell(model: CharacteristicModel) {
+    Column {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 24.dp)
+                .height(height = 60.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                model.title,
+                modifier = Modifier.weight(0.6f),
+                style = TextStyle(color = brownGrayColor)
+            )
+            Text(
+                model.value,
+                modifier = Modifier
+                    .weight(0.4f)
+                    .padding(8.dp),
+                style = TextStyle(color = Color.Black)
+            )
+        }
+
+        Divider(color = veryLightPink)
+    }
 }
 
 @Composable
@@ -162,12 +205,15 @@ fun DeliveryPickUpView(productViewModel: ProductViewModel) {
                 .size(24.dp)
         )
 
-        Column() {
+        Column(modifier = Modifier.padding(start = 24.dp)) {
             Subtitle5(text = "Доставка завтра")
-            Caption("На складе 112 шт")
+            Caption(text = "На складе 112 шт", modifier = Modifier.padding(top = 2.dp))
             if (pickupStoresCount > 0) {
-                Subtitle5("Самовызов сегодня")
-                //Caption("Доступно в ${} магазинах")
+                Subtitle5(text = "Самовызов сегодня", modifier = Modifier.padding(top = 16.dp))
+                Caption(
+                    text = "Доступно в $pickupStoresCount магазинах",
+                    modifier = Modifier.padding(top = 2.dp)
+                )
             }
         }
     }
